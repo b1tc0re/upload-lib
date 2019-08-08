@@ -5,7 +5,7 @@ use DeftCMS\Engine;
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Библиотека для загрузки файлов и работы с изоброжениями
+ * Библиотека для загрузки файлов и работы с изображениями
  *
  * @package     DeftCMS
  * @author	    b1tc0re
