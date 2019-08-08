@@ -1,0 +1,26 @@
+{
+  "name": "b1tc0re/upload-library",
+  "description": "Библиотка для загрузки файлов на сервер",
+  "keywords": [
+    "b1tc0re",
+    "DeftCMS",
+    "upload"
+  ],
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "b1tc0re",
+      "email": "b1tc0re@yandex.ru",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "DeftCMS\\Components\\b1tc0re\\Upload\\": "src/"
+    }
+  }
+}
