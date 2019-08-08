@@ -11,7 +11,7 @@ composer require b1tc0re/upload-lib
 ```json
 {
     "require": {
-        "b1tc0re/upload-lib": "v1.0.0"
+        "b1tc0re/upload-lib": "v0.0.1"
     }
 }
 ```
