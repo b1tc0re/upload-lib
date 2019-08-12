@@ -159,6 +159,7 @@ class Uploader
                 'wm_hor_offset'     => $this->wm_hor_offset,
                 'wm_vrt_alignment'  => $this->wm_vrt_alignment,
                 'wm_hor_alignment'  => $this->wm_hor_alignment,
+                'max_image_size'    => $this->max_image_size
             ]
         ];
 
@@ -360,11 +361,11 @@ class Uploader
         $wm_width   = intval($cal_w_size[0]);
         $wm_height  = intval($cal_w_size[1]);
 
-        if( $wm_width === 0 && $wm_height > $result['image_height'] ) {
+        if( $wm_width === 0 || $wm_height > $result['image_height'] ) {
             return;
         }
 
-        if( $wm_height === 0 && $wm_width > $result['image_width'] ) {
+        if( $wm_height === 0 || $wm_width > $result['image_width'] ) {
             return;
         }
 
