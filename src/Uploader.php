@@ -132,91 +132,64 @@ class Uploader
      */
     public function initialize($params = [])
     {
-        $config = array_key_exists('upload', Engine::$config) ? Engine::$config['upload'] : [];
+        $upload = array_key_exists('upload', Engine::$config) ? Engine::$config['upload'] : [];
 
-        $config['upload_path']      = Engine::$DT->config->item('cms.upload.dir');
-        $config['allowed_types']    = is_string($config['allowed_types']) ? $config['allowed_types'] : $this->allow_watermark;
-        $config['file_ext_tolower'] = true;
+        $defaults = [
+            'upload' => [
+                'upload_path'       => Engine::$DT->config->item('cms.upload.dir'),
+                'allowed_types'     => is_string($upload['allowed_types']) ? $upload['allowed_types'] : $this->allowed_types,
+                'file_ext_tolower'  => true,
+                'max_size'          => fn_upload_max_filesize(),
+                'encrypt_name'      => true,
+                'remove_spaces'     => true,
+                'detect_mime'       => true,
+                'mod_mime_fix'      => true,
+                'overwrite'         => false,
+            ],
+            'images' => [
+                'wm_image_light'    => Engine::$DT->config->item('cms.storage.dir') . 'wm_cms.png',
+                'wm_image_dark'     => Engine::$DT->config->item('cms.storage.dir') . 'wm_cms.png',
+                'image_library'     => $this->image_library,
+                'library_path'      => $this->library_path,
+                'quality'           => $this->quality,
+                'thumbs_size'       => $this->thumbs_size,
+                'allow_watermark'   => $this->allow_watermark,
+                'min_overlay_size'  => $this->min_overlay_size,
+                'wm_vrt_offset'     => $this->wm_vrt_offset,
+                'wm_hor_offset'     => $this->wm_hor_offset,
+                'wm_vrt_alignment'  => $this->wm_vrt_alignment,
+                'wm_hor_alignment'  => $this->wm_hor_alignment,
+            ]
+        ];
 
-        // Определить максимально-разрешенное сервером размер загружаемого файла
-        $upload_max_filesize = fn_upload_max_filesize();
+        $config = $defaults['upload'];
 
-        if( array_key_exists('max_size', $config) && $config['max_size'] > $upload_max_filesize ) {
-            $config['max_size'] = $upload_max_filesize;
+        foreach ($config as $item => $value)
+        {
+            if( array_key_exists('upload', $params) && array_key_exists($item, $params['upload']) ) {
+                $config[$item] = $params['upload'][$item];
+            }
+            elseif( array_key_exists($item, $upload) ) {
+                $config[$item] = $upload[$item];
+            }
         }
 
-        $config['encrypt_name']     = true;
-        $config['remove_spaces']    = true;
-        $config['detect_mime']      = true;
-        $config['mod_mime_fix']     = true;
-        $config['overwrite']        = false;
-
-        if( array_key_exists('upload_path', $params) ) {
-            $config['upload_path'] = $params['upload_path'];
+        if( array_key_exists('max_size', $config) && $config['max_size'] > $defaults['upload']['max_size'] ) {
+            $config['max_size'] = $defaults['upload']['max_size'];
         }
 
         Engine::$DT->load->library('upload', $config);
         Engine::$DT->upload->initialize($config, TRUE);
 
-        $this->wm_image_light = Engine::$DT->config->item('cms.storage.dir') . 'wm_cms.png';
-        $this->wm_image_dark  = Engine::$DT->config->item('cms.storage.dir') . 'wm_cms.png';
+        $images = array_key_exists('images', Engine::$config) ? Engine::$config['images'] : [];
 
-        if( array_key_exists('image', Engine::$config) )
-        {
-            if( array_key_exists('image_library', Engine::$config['image']) ) {
-                $this->image_library = Engine::$config['image']['image_library'];
+        foreach ($defaults['images'] as $item => $val) {
+
+            if( array_key_exists('images', $params) && array_key_exists($item, $params['images']) ) {
+                $this->{$item} = $params['images'][$item];
             }
-
-            if( array_key_exists('image_library_path', Engine::$config['image']) ) {
-                $this->library_path = Engine::$config['image']['image_library_path'];
-            }
-
-            if( array_key_exists('max_image_size', Engine::$config['image']) ) {
-                $this->library_path = Engine::$config['image']['max_image_size'];
-            }
-
-            if( array_key_exists('quality', Engine::$config['image']) ) {
-                $this->quality = Engine::$config['image']['quality'];
-            }
-
-            if( array_key_exists('thumbs_size_small', Engine::$config['image']) ) {
-                $this->thumbs_size['small'] = Engine::$config['image']['thumbs_size_small'];
-            }
-
-            if( array_key_exists('thumbs_size_medium', Engine::$config['image']) ) {
-                $this->thumbs_size['medium'] = Engine::$config['image']['thumbs_size_medium'];
-            }
-
-            if( array_key_exists('allow_watermark', Engine::$config['image']) ) {
-                $this->allow_watermark = Engine::$config['image']['allow_watermark'];
-            }
-
-            if( array_key_exists('wm_min_overlay_size', Engine::$config['image']) ) {
-                $this->min_overlay_size = Engine::$config['image']['wm_min_overlay_size'];
-            }
-
-            if( array_key_exists('wm_image_light', Engine::$config['image']) ) {
-                $this->wm_image_light = Engine::$config['image']['wm_image_light'];
-            }
-
-            if( array_key_exists('wm_image_dark', Engine::$config['image']) ) {
-                $this->wm_image_dark = Engine::$config['image']['wm_image_dark'];
-            }
-
-            if( array_key_exists('wm_vrt_offset', Engine::$config['image']) ) {
-                $this->wm_vrt_offset = Engine::$config['image']['wm_vrt_offset'];
-            }
-
-            if( array_key_exists('wm_hor_offset', Engine::$config['image']) ) {
-                $this->wm_hor_offset = Engine::$config['image']['wm_hor_offset'];
-            }
-
-            if( array_key_exists('wm_vrt_alignment', Engine::$config['image']) ) {
-                $this->wm_vrt_alignment = Engine::$config['image']['wm_vrt_alignment'];
-            }
-
-            if( array_key_exists('wm_hor_alignment', Engine::$config['image']) ) {
-                $this->wm_hor_alignment = Engine::$config['image']['wm_hor_alignment'];
+            elseif(array_key_exists($item, $images)) {
+                $this->{$item} = $images[$item];
             }
         }
     }
@@ -265,10 +238,6 @@ class Uploader
             $this->resize($image_size[0], $image_size[1], $result);
         }
 
-        if( $this->allow_watermark ) {
-            $this->watermark($result);
-        }
-
         foreach ($this->thumbs_size as $marker =>  $size)
         {
             // Изменения размера изоброжения
@@ -281,6 +250,10 @@ class Uploader
             if ( $image_size[1] < 10 ) $image_size[1] = 10;
 
             $this->crop($image_size[0], $image_size[1], $marker, $result);
+        }
+
+        if( $this->allow_watermark ) {
+            $this->watermark($result);
         }
     }
 
@@ -368,8 +341,8 @@ class Uploader
         }
         else
         {
-            $result['thumbs_dir_path'][$marker]    = $thumbs_path;
-            $result['thumbs_image_path'][$marker]  = Engine::$DT->image_lib->full_dst_path;
+            $result['thumbs'][$marker]['thumbs_dir_path']   = $thumbs_path;
+            $result['thumbs'][$marker]['thumbs_image_path'] = Engine::$DT->image_lib->full_dst_path;
         }
 
     }
