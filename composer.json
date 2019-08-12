@@ -20,7 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "DeftCMS\\Components\\b1tc0re\\Upload\\": "src/"
+      "DeftCMS\\Libraries\\Uploader": "src/"
     }
   }
 }
