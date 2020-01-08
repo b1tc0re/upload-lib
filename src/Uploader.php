@@ -127,6 +127,15 @@ class Uploader
     }
 
     /**
+     * Получить сообщения об ошибках
+     * @return array
+     */
+    public function getErrors()
+    {
+        return $this->error_message;
+    }
+
+    /**
      * Инициализация библиотеки загрузки файлов
      * @param array $params
      */
