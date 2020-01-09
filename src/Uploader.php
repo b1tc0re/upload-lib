@@ -1,6 +1,8 @@
 <?php namespace DeftCMS\Libraries;
 
 use DeftCMS\Engine;
+use Spatie\ImageOptimizer\OptimizerChain;
+use Spatie\ImageOptimizer\OptimizerChainFactory;
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
@@ -118,12 +120,21 @@ class Uploader
     protected $wm_hor_alignment = 'right';
 
     /**
+     * Оптимизация изоброжений
+     * @var OptimizerChain
+     */
+    protected $imageOptimizer;
+
+    /**
      * Upload constructor.
      * @param array $params
      */
     public function __construct($params = [])
     {
         $this->initialize($params);
+
+        $this->imageOptimizer = OptimizerChainFactory::create();
+        $this->imageOptimizer->setTimeout(30);
     }
 
     /**
@@ -146,14 +157,14 @@ class Uploader
         $defaults = [
             'upload' => [
                 'upload_path'       => Engine::$DT->config->item('cms.upload.dir'),
-                'allowed_types'     => is_string($upload['allowed_types']) ? $upload['allowed_types'] : $this->allowed_types,
+                'allowed_types'     => array_key_exists('allowed_types', $upload) && is_string($upload['allowed_types']) ? $upload['allowed_types'] : $this->allowed_types,
                 'file_ext_tolower'  => true,
                 'max_size'          => fn_upload_max_filesize(),
                 'encrypt_name'      => true,
                 'remove_spaces'     => true,
                 'detect_mime'       => true,
                 'mod_mime_fix'      => true,
-                'overwrite'         => false,
+                'overwrite'         => true,
             ],
             'images' => [
                 'wm_image_light'    => Engine::$DT->config->item('cms.storage.dir') . 'wm_cms.png',
@@ -184,8 +195,11 @@ class Uploader
             }
         }
 
-        if( array_key_exists('max_size', $config) && $config['max_size'] > $defaults['upload']['max_size'] ) {
-            $config['max_size'] = $defaults['upload']['max_size'];
+        if( array_key_exists('max_size', $config)  ) {
+            $config['max_size'] = fn_parse_size($config['max_size']);
+            if( $config['max_size'] > $defaults['upload']['max_size'] ) {
+                $config['max_size'] = $defaults['upload']['max_size'];
+            }
         }
 
         Engine::$DT->load->library('upload', $config);
@@ -193,8 +207,8 @@ class Uploader
 
         $images = array_key_exists('images', Engine::$config) ? Engine::$config['images'] : [];
 
-        foreach ($defaults['images'] as $item => $val) {
-
+        foreach ($defaults['images'] as $item => $val)
+        {
             if( array_key_exists('images', $params) && array_key_exists($item, $params['images']) ) {
                 $this->{$item} = $params['images'][$item];
             }
@@ -219,12 +233,36 @@ class Uploader
             return false;
         }
 
-
         $result = Engine::$DT->upload->data();
-        $result['is_image'] && $this->handleImageUpload($result);
+
+        if( $result['is_image'] )
+        {
+            $this->handleImageUpload($result);
+            // Оптимизация изоброжений
+            $this->imageOptimizer->optimize($result['full_path']);
+            $result['file_size'] = round(filesize($result['full_path']) / 1024, 2);
+
+            if( array_key_exists('thumbs', $result) )
+            {
+                foreach ($result['thumbs'] as $thumb)
+                {
+                    $this->imageOptimizer->optimize($thumb['thumbs_image_path']);
+                }
+            }
+        }
+
         $output = $this->error_message;
 
         return $result;
+    }
+
+    /**
+     * Получить размеры миниатур
+     * @return array
+     */
+    public function getThumbsSizes()
+    {
+        return $this->thumbs_size;
     }
 
     /**
@@ -233,6 +271,8 @@ class Uploader
      */
     protected function handleImageUpload(array &$result)
     {
+        $this->imageOptimizer->useLogger(Engine::$Log);
+
         // Меняем размер изоброжения
         if( $this->max_image_size != 0 )
         {
