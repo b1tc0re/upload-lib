@@ -56,7 +56,7 @@ class ImageOptimizerDummy
         return $this;
     }
 
-    public function optimize($pathToImage, $pathToOutput) { }
+    public function optimize($pathToImage, $pathToOutput = null) { }
 
     protected function applyOptimizer($optimizer, $image) { }
 
