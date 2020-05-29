@@ -152,10 +152,12 @@ class Uploader
     {
         $upload = array_key_exists('upload', Engine::$config) ? Engine::$config['upload'] : [];
 
-        if( array_key_exists('optimize_images', $upload) ) {
+        if( array_key_exists('optimize_images', $upload) && $upload['optimize_images'] === true)
+        {
             $this->imageOptimizer = OptimizerChainFactory::create();
         }
-        else {
+        else
+        {
             $this->imageOptimizer = new ImageOptimizerDummy();
         }
 
