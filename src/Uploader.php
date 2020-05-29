@@ -11,8 +11,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  *
  * @package     DeftCMS
  * @author	    b1tc0re
- * @copyright   2017-2019 DeftCMS (https://deftcms.org/)
- * @since	    Version 0.0.1
+ * @copyright   2017-2020 DeftCMS (https://deftcms.ru/)
+ * @since	    Version 0.0.9
  */
 class Uploader
 {
@@ -226,6 +226,29 @@ class Uploader
      */
     public function doUpload($field = 'file', &$output = [])
     {
+        $result = [];
+
+        if( isset($_FILES[$field]) && is_array($_FILES[$field]['name']) )
+        {
+            // Сохранить глобальный массив данных для восстоновления
+            $FILES  = $_FILES;
+            foreach ($this->getMultipleUpload()[$field] as $value)
+            {
+                $_FILES = [];
+                $_FILES[$field] = $value;
+
+                if( ($_result = $this->doUpload($field, $output)) === false )
+                {
+                    $_FILES = $_FILES;
+                    return false;
+                }
+
+                $result[] = $_result;
+            }
+            $_FILES = $FILES;
+            return  $result;
+        }
+
         if( !Engine::$DT->upload->do_upload($field) )
         {
             $this->error_message = Engine::$DT->upload->error_msg;
@@ -253,7 +276,7 @@ class Uploader
 
         $output = $this->error_message;
 
-        return $result;
+        return [$result];
     }
 
     /**
@@ -505,5 +528,27 @@ class Uploader
                 $this->error_message[] = $message;
             }
         }
+    }
+
+    /**
+     * Получить данные для загрузки одновременно несколько файлов
+     * @return array
+     */
+    protected function getMultipleUpload()
+    {
+        $result  = [];
+
+        foreach($_FILES as $name => $file)
+        {
+            foreach($file as $property => $keys)
+            {
+                foreach($keys as $key => $value)
+                {
+                    $result[$name][$key][$property] = $value;
+                }
+            }
+        }
+
+        return $result;
     }
 }
