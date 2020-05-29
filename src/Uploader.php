@@ -1,6 +1,7 @@
 <?php namespace DeftCMS\Libraries;
 
 use DeftCMS\Engine;
+use DeftCMS\Libraries\Image\ImageOptimizerDummy;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\OptimizerChainFactory;
 
@@ -132,9 +133,6 @@ class Uploader
     public function __construct($params = [])
     {
         $this->initialize($params);
-
-        $this->imageOptimizer = OptimizerChainFactory::create();
-        $this->imageOptimizer->setTimeout(30);
     }
 
     /**
@@ -153,6 +151,15 @@ class Uploader
     public function initialize($params = [])
     {
         $upload = array_key_exists('upload', Engine::$config) ? Engine::$config['upload'] : [];
+
+        if( array_key_exists('optimize_images', $upload) ) {
+            $this->imageOptimizer = OptimizerChainFactory::create();
+        }
+        else {
+            $this->imageOptimizer = new ImageOptimizerDummy();
+        }
+
+        $this->imageOptimizer->setTimeout(30);
 
         $defaults = [
             'upload' => [
