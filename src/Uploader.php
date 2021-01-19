@@ -255,7 +255,7 @@ class Uploader
                 $result[] = $_result;
             }
             $_FILES = $FILES;
-            return  $result;
+            return $result;
         }
 
         if( !Engine::$DT->upload->do_upload($field) )
@@ -270,6 +270,7 @@ class Uploader
         if( $result['is_image'] )
         {
             $this->handleImageUpload($result);
+
             // Оптимизация изоброжений
             $this->imageOptimizer->optimize($result['full_path']);
             $result['file_size'] = round(filesize($result['full_path']) / 1024, 2);
@@ -285,7 +286,7 @@ class Uploader
 
         $output = $this->error_message;
 
-        return [$result];
+        return $result;
     }
 
     /**
@@ -311,8 +312,8 @@ class Uploader
             // Изменения размера изоброжения
             $image_size = explode('x', $this->max_image_size);
 
-            $image_size[0] = intval($image_size[0]);
-            $image_size[1] = intval($image_size[1]);
+            $image_size[0] = (int) $image_size[0];
+            $image_size[1] = (int) $image_size[1];
 
             if ( $image_size[0] < 10 ) $image_size[0] = 10;
             if ( $image_size[1] < 10 ) $image_size[1] = 10;
@@ -325,8 +326,8 @@ class Uploader
             // Изменения размера изоброжения
             $image_size = explode('x', $size);
 
-            $image_size[0] = intval($image_size[0]);
-            $image_size[1] = intval($image_size[1]);
+            $image_size[0] = (int) $image_size[0];
+            $image_size[1] = (int) $image_size[1];
 
             if ( $image_size[0] < 10 ) $image_size[0] = 10;
             if ( $image_size[1] < 10 ) $image_size[1] = 10;
