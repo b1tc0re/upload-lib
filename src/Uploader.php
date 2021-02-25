@@ -169,7 +169,7 @@ class Uploader
                 'allowed_types'     => array_key_exists('allowed_types', $upload) && is_string($upload['allowed_types']) ? $upload['allowed_types'] : $this->allowed_types,
                 'file_ext_tolower'  => true,
                 'max_size'          => fn_upload_max_filesize(),
-                'encrypt_name'      => array_key_exists('encrypt_name', $upload) && is_bool($upload['encrypt_name']) ? $upload['encrypt_name'] : true,
+                'encrypt_name'      => true,
                 'remove_spaces'     => true,
                 'detect_mime'       => true,
                 'mod_mime_fix'      => true,
