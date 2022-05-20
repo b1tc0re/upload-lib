@@ -5,14 +5,14 @@ use DeftCMS\Libraries\Image\ImageOptimizerDummy;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\OptimizerChainFactory;
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') || exit('No direct script access allowed');
 
 /**
  * Библиотека для загрузки файлов и работы с изображениями
  *
  * @package     DeftCMS
  * @author	    b1tc0re
- * @copyright   2017-2020 DeftCMS (https://deftcms.ru/)
+ * @copyright   2017-2022 DeftCMS (https://deftcms.ru/)
  * @since	    Version 0.0.9
  */
 class Uploader
@@ -228,7 +228,7 @@ class Uploader
     }
 
     /**
-     * Загрузить фаил на сервер
+     * Загрузить фаилы на сервер
      * @param string $field
      * @param array $output
      * @return false|array Информация о загруженным файле
@@ -241,6 +241,7 @@ class Uploader
         {
             // Сохранить глобальный массив данных для восстоновления
             $FILES  = $_FILES;
+
             foreach ($this->getMultipleUpload()[$field] as $value)
             {
                 $_FILES = [];
@@ -254,6 +255,7 @@ class Uploader
 
                 $result[] = $_result;
             }
+
             $_FILES = $FILES;
             return $result;
         }
@@ -261,7 +263,7 @@ class Uploader
         if( !Engine::$DT->upload->do_upload($field) )
         {
             $this->error_message = Engine::$DT->upload->error_msg;
-            $output = $this->error_message;
+            $output[] = $this->error_message;
             return false;
         }
 
@@ -273,7 +275,9 @@ class Uploader
 
             // Оптимизация изоброжений
             $this->imageOptimizer->optimize($result['full_path']);
+
             $result['file_size'] = round(filesize($result['full_path']) / 1024, 2);
+            $result['file_human_size'] = fn_human_file_size($result['file_size']);
 
             if( array_key_exists('thumbs', $result) )
             {
