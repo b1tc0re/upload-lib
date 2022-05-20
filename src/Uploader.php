@@ -273,19 +273,19 @@ class Uploader
         {
             $this->handleImageUpload($result);
 
-            // Оптимизация изоброжений
-            $this->imageOptimizer->useLogger(Engine::$Log);
-            $this->imageOptimizer->optimize($result['full_path']);
-
             $result['file_size'] = round(filesize($result['full_path']) / 1024, 2);
 
             if( array_key_exists('thumbs', $result) )
             {
                 foreach ($result['thumbs'] as $thumb)
                 {
-                    $this->imageOptimizer->optimize($thumb['thumbs_image_path']);
+                    $this->imageOptimizer->optimize($thumb['image_path']);
                 }
             }
+
+            // Оптимизация изоброжений
+            $this->imageOptimizer->useLogger(Engine::$Log);
+            $this->imageOptimizer->optimize($result['full_path']);
         }
 
         $result['file_human_size'] = fn_human_file_size($result['file_size']);
@@ -429,8 +429,12 @@ class Uploader
         }
         else
         {
-            $result['thumbs'][$marker]['thumbs_dir_path']   = $thumbs_path;
-            $result['thumbs'][$marker]['thumbs_image_path'] = Engine::$DT->image_lib->full_dst_path;
+            $result['thumbs'][$marker]['dir_path']      = $thumbs_path;
+            $result['thumbs'][$marker]['image_path']    = Engine::$DT->image_lib->full_dst_path;
+            $result['thumbs'][$marker]['file_size']     = filesize(Engine::$DT->image_lib->full_dst_path);
+            $result['thumbs'][$marker]['width']         = Engine::$DT->image_lib->width;
+            $result['thumbs'][$marker]['height']        = Engine::$DT->image_lib->height;
+            $result['thumbs'][$marker]['url']           = base_url(fn_make_absolute_url(Engine::$DT->image_lib->full_dst_path));
         }
 
     }
