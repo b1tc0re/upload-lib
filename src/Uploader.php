@@ -274,6 +274,7 @@ class Uploader
             $this->handleImageUpload($result);
 
             // Оптимизация изоброжений
+            $this->imageOptimizer->useLogger(Engine::$Log);
             $this->imageOptimizer->optimize($result['full_path']);
 
             $result['file_size'] = round(filesize($result['full_path']) / 1024, 2);
@@ -288,6 +289,7 @@ class Uploader
         }
 
         $result['file_human_size'] = fn_human_file_size($result['file_size']);
+        unset($result['image_size_str']);
 
         $output = $this->error_message;
 
@@ -309,8 +311,6 @@ class Uploader
      */
     protected function handleImageUpload(array &$result)
     {
-        $this->imageOptimizer->useLogger(Engine::$Log);
-
         // Меняем размер изоброжения
         if( $this->max_image_size != 0 )
         {
