@@ -277,7 +277,6 @@ class Uploader
             $this->imageOptimizer->optimize($result['full_path']);
 
             $result['file_size'] = round(filesize($result['full_path']) / 1024, 2);
-            $result['file_human_size'] = fn_human_file_size($result['file_size']);
 
             if( array_key_exists('thumbs', $result) )
             {
@@ -287,6 +286,8 @@ class Uploader
                 }
             }
         }
+
+        $result['file_human_size'] = fn_human_file_size($result['file_size']);
 
         $output = $this->error_message;
 
