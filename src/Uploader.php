@@ -204,8 +204,12 @@ class Uploader
             }
         }
 
+        // Максимальный размер файла (в килобайтах)
         if( array_key_exists('max_size', $config)  ) {
+
             $config['max_size'] = fn_human_to_byte($config['max_size']);
+            $config['max_size'] = round($config['max_size'] / 1024, 2);
+
             if( $config['max_size'] > $defaults['upload']['max_size'] ) {
                 $config['max_size'] = $defaults['upload']['max_size'];
             }
