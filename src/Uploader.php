@@ -208,7 +208,7 @@ class Uploader
         if( array_key_exists('max_size', $config)  ) {
 
             $config['max_size'] = fn_human_to_byte($config['max_size']);
-            $config['max_size'] = round($config['max_size'] / 1024, 2);
+            $config['max_size'] = round($config['max_size'] / 1000, 2);
 
             if( $config['max_size'] > $defaults['upload']['max_size'] ) {
                 $config['max_size'] = $defaults['upload']['max_size'];
@@ -310,6 +310,27 @@ class Uploader
     }
 
     /**
+     * Создать миниатуры изоброжения
+     * @param array $result
+     */
+    public function createThumbs(&$result)
+    {
+        foreach ($this->thumbs_size as $marker =>  $size)
+        {
+            // Изменения размера изоброжения
+            $image_size = explode('x', $size);
+
+            $image_size[0] = (int) $image_size[0];
+            $image_size[1] = (int) $image_size[1];
+
+            if ( $image_size[0] < 10 ) $image_size[0] = 10;
+            if ( $image_size[1] < 10 ) $image_size[1] = 10;
+
+            $this->crop($image_size[0], $image_size[1], $marker, $result);
+        }
+    }
+
+    /**
      * Обработка изоброжения
      * @param array $result Данные о загруженном файле
      */
@@ -330,19 +351,7 @@ class Uploader
             $this->resize($image_size[0], $image_size[1], $result);
         }
 
-        foreach ($this->thumbs_size as $marker =>  $size)
-        {
-            // Изменения размера изоброжения
-            $image_size = explode('x', $size);
-
-            $image_size[0] = (int) $image_size[0];
-            $image_size[1] = (int) $image_size[1];
-
-            if ( $image_size[0] < 10 ) $image_size[0] = 10;
-            if ( $image_size[1] < 10 ) $image_size[1] = 10;
-
-            $this->crop($image_size[0], $image_size[1], $marker, $result);
-        }
+        $this->createThumbs($result);
 
         if( $this->allow_watermark ) {
             $this->watermark($result);
