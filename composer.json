@@ -16,8 +16,8 @@
     }
   ],
   "require": {
-    "php": "^7.0",
-    "spatie/image-optimizer": "1.2.1",
+    "php": ">=7.2",
+    "spatie/image-optimizer": "1.6.2",
     "ext-gd": "*"
   },
   "autoload": {
