@@ -243,7 +243,7 @@ class Uploader
 
         if( isset($_FILES[$field]) && is_array($_FILES[$field]['name']) )
         {
-            // Сохранить глобальный массив данных для восстоновления
+            // Сохранить глобальный массив данных для восстановления
             $FILES  = $_FILES;
 
             foreach ($this->getMultipleUpload()[$field] as $value)
@@ -264,10 +264,9 @@ class Uploader
             return $result;
         }
 
-        if( !Engine::$DT->upload->do_upload($field) )
-        {
+        if( !Engine::$DT->upload->do_upload($field) ) {
             $this->error_message = Engine::$DT->upload->error_msg;
-            $output[] = $this->error_message;
+            $output = $this->error_message;
             return false;
         }
 
@@ -287,7 +286,7 @@ class Uploader
                 }
             }
 
-            // Оптимизация изоброжений
+            // Оптимизация изображений
             $this->imageOptimizer->useLogger(Engine::$Log);
             $this->imageOptimizer->optimize($result['full_path']);
         }
